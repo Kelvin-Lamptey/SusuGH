@@ -29,7 +29,7 @@ func setupApp(){
 }
 
 func showMenu(){
-	message := "You are welcome to the SUSU Group.\nChoose your choice \n 1. Create Group \n 2.Open a Group\nEnter: "
+	message := "You are welcome to the SUSU Group.\nChoose your choice \n 1. Create Group \n 2.Open a Group\n 3.Change account\n\nEnter: "
 
 	var input int
 	fmt.Println(message)
@@ -38,6 +38,8 @@ func showMenu(){
 		createGroup()
 	}else if input == 2{
 		openGroup()
+	}else if input == 3{
+		login()
 	}
 }
 
