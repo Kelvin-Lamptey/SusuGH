@@ -56,12 +56,38 @@ func createGroup(){
 	fmt.Print("Enter Amount to collect weekly: ")
 	fmt.Scanln(&amount)
 	groups[groupName] = map[string]float64{ cur_user: amount}
-	
+	group_user[cur_user] = groupName
 	fmt.Println("Group Created!!!")
 	// fmt.Println(groups)
 }
 
 func openGroup(){
-	//add functionality for creating groups
+	var name string
+	fmt.Println("Enter the Group name: ")
+	fmt.Scanln(&name)
+
+	if group_user[cur_user] == name{
+		handleGroupSession(name) 
+	}else{
+		fmt.Println("Your account is not associated with that group or that group does not exist.")
+	}
 }
-	
+
+func handleGroupSession( name string){
+	var response int
+	fmt.Println()
+	fmt.Println("Welcome to group",name)
+	fmt.Println("Choose your choice.\n 1.Add user to group\n 2.Pay amount\n 3.")
+	fmt.Scanln(&response)
+	if response == 1{
+		addUserToGroup()
+	}else if response == 2{
+		payAmountForGroup()
+	}
+}
+func addUserToGroup(){
+	//add functionality for adding users to Group
+}
+func payAmountForGroup(){
+	//add functionality for paying
+}
