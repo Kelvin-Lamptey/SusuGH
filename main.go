@@ -5,14 +5,15 @@ import "fmt"
 var payments map[string]float64
 var groups map[string]map[string]float64
 var users map[string]string
+var group_user map[string]string
 
 var cur_user string
 
 
 func main(){
 	setupApp()
+	login()
 	for 11 > 2{
-		login()
 		showMenu()
 	}
 }
@@ -24,7 +25,9 @@ func setupApp(){
 	users = make(map[string]string)
 	payments = make(map[string]float64)
 	groups = make(map[string]map[string]float64)
+	group_user = make(map[string]string)
 }
+
 func showMenu(){
 	message := "You are welcome to the SUSU Group.\nChoose your choice \n 1. Create Group \n 2.Open a Group\nEnter: "
 
@@ -37,9 +40,26 @@ func showMenu(){
 		openGroup()
 	}
 }
+
 func createGroup(){
+	var groupName string
+	var amount float64
+
+	fmt.Println("")
+	fmt.Println("Create Group")
+	fmt.Println("=============")
+
+	fmt.Print("Enter Group Name: ")
+	fmt.Scanln(&groupName)
+	fmt.Print("Enter Amount to collect weekly: ")
+	fmt.Scanln(&amount)
+	groups[groupName] = map[string]float64{ cur_user: amount}
+	
+	fmt.Println("Group Created!!!")
+	// fmt.Println(groups)
+}
+
+func openGroup(){
 	//add functionality for creating groups
 }
-func openGroup(){
-	//add functionality for opening a group
-}
+	
