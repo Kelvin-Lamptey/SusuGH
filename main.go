@@ -80,13 +80,21 @@ func handleGroupSession( name string){
 	fmt.Println("Choose your choice.\n 1.Add user to group\n 2.Pay amount\n 3.")
 	fmt.Scanln(&response)
 	if response == 1{
-		addUserToGroup()
+		addUserToGroup(name)
 	}else if response == 2{
 		payAmountForGroup()
 	}
 }
-func addUserToGroup(){
-	//add functionality for adding users to Group
+func addUserToGroup( groupName string){
+	fmt.Println()
+	fmt.Println("Enter the user's mobile number to add to the group: ")
+	var user string
+	fmt.Scanln(&user)
+	group_user[user] = groupName
+
+	fmt.Println(user,"added to", groupName, "group.")
+
+	// fmt.Println(group_user)
 }
 func payAmountForGroup(){
 	//add functionality for paying
