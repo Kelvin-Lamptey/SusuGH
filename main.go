@@ -10,6 +10,8 @@ var group_user map[string]string
 var payments[]map[string]float64
 
 var cur_pot_user map[string]string
+var group_members map[string][]string
+var payout_history map[string][]string
 var cur_user string
 
 
@@ -30,6 +32,8 @@ func setupApp(){
 	groups = make(map[string]map[int]float64)
 	group_user = make(map[string]string)
 	cur_pot_user = make(map[string]string)
+	group_members = make(map[string][]string)
+	payout_history = make(map[string][]string)
 }
 
 func showMenu(){
@@ -76,6 +80,7 @@ func createGroup(){
 	cur_pot_user[groupName] = cur_user
 
 	group_user[cur_user] = groupName
+	group_members[groupName] = append(group_members[groupName], cur_user)
 	fmt.Println("Group Created!!!")
 	// fmt.Println(groups)
 }
@@ -124,6 +129,7 @@ func addUserToGroup( groupName string){
 		return
 	}
 	group_user[user] = groupName
+	group_members[groupName] = append(group_members[groupName], user)
 
 	fmt.Println(user,"added to", groupName, "group.")
 
@@ -226,25 +232,23 @@ func closeCurrentWeek( groupName string){
 
 	fmt.Println("Current week closed for group", groupName)
 	fmt.Println("Pot paid for", cur_pot_user[groupName], "for group", groupName)
+	payout_history[groupName] = append(payout_history[groupName], fmt.Sprintf("Week %d: %s received %.2f", active_cur_week, cur_pot_user[groupName], weekly_amount*float64(len(group_members[groupName]))))
 	cur_pot_user[groupName] = getNextPotUser(groupName)
 
 	ReportAllUnfinishedUsersForGroup( groupName)
 }
 
 func getNextPotUser( groupName string) string{
-	var next_user string
-	var use_as_next bool = false
-	for user, group := range group_user{
-		if use_as_next{
-			next_user = user
-			break
-		}
-		if group == groupName && cur_pot_user[groupName] == user{
-			use_as_next = true
-			continue
+	members := group_members[groupName]
+	for i, user := range members{
+		if user == cur_pot_user[groupName]{
+			if i+1 < len(members){
+				return members[i+1]
+			}
+			return members[0]
 		}
 	}
-	return next_user
+	return cur_pot_user[groupName]
 }
 
 func ReportAllUnfinishedUsersForGroup( groupName string){
