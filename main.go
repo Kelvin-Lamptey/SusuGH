@@ -107,16 +107,22 @@ func handleGroupSession( name string){
 	}
 }
 func addUserToGroup( groupName string){
-	for user, group := range group_user{
-		if user == cur_user && group == groupName{
-			fmt.Println("User is already in the group.")
-			return
-		}
+	if _, exists := groups[groupName]; !exists{
+		fmt.Println("Group does not exist.")
+		return
 	}
 	fmt.Println()
 	fmt.Println("Enter the user's mobile number to add to the group: ")
 	var user string
 	fmt.Scanln(&user)
+	if user == ""{
+		fmt.Println("User cannot be empty.")
+		return
+	}
+	if _, exists := group_user[user]; exists{
+		fmt.Println("User is already in a group.")
+		return
+	}
 	group_user[user] = groupName
 
 	fmt.Println(user,"added to", groupName, "group.")
