@@ -9,6 +9,7 @@ var users map[string]string
 var group_user map[string]string
 var payments[]map[string]float64
 
+var cur_pot_user map[string]string
 var cur_user string
 
 
@@ -28,6 +29,7 @@ func setupApp(){
 	payment = make(map[string]float64)
 	groups = make(map[string]map[int]float64)
 	group_user = make(map[string]string)
+	cur_pot_user = make(map[string]string)
 }
 
 func showMenu(){
@@ -58,6 +60,9 @@ func createGroup(){
 	fmt.Print("Enter Amount to collect weekly: ")
 	fmt.Scanln(&amount)
 	groups[groupName] = map[int]float64{ 1: amount}
+
+	cur_pot_user[groupName] = cur_user
+
 	group_user[cur_user] = groupName
 	fmt.Println("Group Created!!!")
 	// fmt.Println(groups)
@@ -79,12 +84,14 @@ func handleGroupSession( name string){
 	var response int
 	fmt.Println()
 	fmt.Println("Welcome to group",name)
-	fmt.Println("Choose your choice.\n 1.Add user to group\n 2.Pay amount\n 3.")
+	fmt.Println("Choose your choice.\n 1.Add user to group\n 2.Pay amount\n 3.Close current week")
 	fmt.Scanln(&response)
 	if response == 1{
 		addUserToGroup(name)
 	}else if response == 2{
 		payAmountForGroup(name)
+	}else{
+		closeCurrentWeek(name)
 	}
 }
 func addUserToGroup( groupName string){
@@ -123,7 +130,6 @@ func payAmountForGroup( groupName string){
 		}
 		if amount <= amount_left{
 			if amount_left == max_amount{
-				
 				payments = append(payments, map[string]float64{ cur_user+"/|"+groupName:amount})
 			}else{
 				for i:=0; i < len(payments);i++{
@@ -143,5 +149,70 @@ func payAmountForGroup( groupName string){
 		
 	}else{
 		fmt.Println("Error with payment")
+	}
+}
+func getCurrentWeek( groupName string) int{
+	 for active_cur_week := range groups[groupName]{
+		return active_cur_week
+	}
+	return 1
+}
+func closeCurrentWeek( groupName string){
+	var active_cur_week int
+	active_cur_week = getCurrentWeek(groupName)
+	for i := 0; i < len(payments); i++ {
+		for pay := range payments[i] {
+			delete(payments[i], pay)
+		}
+	}
+	groups[groupName][active_cur_week+1] = groups[groupName][active_cur_week]
+	delete(groups[groupName], active_cur_week)
+
+
+	fmt.Println("Current week closed for group", groupName)
+	fmt.Println("Pot paid for", cur_pot_user[groupName], "for group", groupName)
+	cur_pot_user[groupName] = getNextPotUser(groupName)
+
+	ReportAllUnfinishedUsersForGroup( groupName)
+}
+
+func getNextPotUser( groupName string) string{
+	var next_user string
+	var use_as_next bool = false
+	for user, group := range group_user{
+		if use_as_next{
+			next_user = user
+			break
+		}
+		if group == groupName && cur_pot_user[groupName] == user{
+			use_as_next = true
+			continue
+		}
+	}
+	return next_user
+}
+
+func ReportAllUnfinishedUsersForGroup( groupName string){
+	var active_cur_week int
+	active_cur_week = getCurrentWeek(groupName)
+
+	for user, group := range group_user{
+		if group == groupName{
+			var user_paid float64 = 0
+			for i := 0; i < len(payments); i++ {
+				for pay := range payments[i] {
+					pay_user := strings.Split(pay,"/|")[0]
+					pay_group := strings.Split(pay,"/|")[1]
+					pay_amount := payments[i][pay]
+					if pay_user == user && pay_group == groupName{
+						user_paid += pay_amount
+					}
+				}
+			}
+			if user_paid < groups[groupName][active_cur_week]{
+				fmt.Println("User", user, "owes", groups[groupName][active_cur_week]-user_paid, "for group", groupName)
+				fmt.Println("User", user, "has not finished paying for group", groupName)
+			}
+		}
 	}
 }
