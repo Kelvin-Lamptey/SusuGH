@@ -130,6 +130,10 @@ func addUserToGroup( groupName string){
 	// fmt.Println(group_user)
 }
 func payAmountForGroup( groupName string){
+	if group_user[cur_user] != groupName{
+		fmt.Println("User is not a member of this group.")
+		return
+	}
 	fmt.Println()
 	fmt.Println("Enter the amount to pay for the current week")
 	var amount float64
@@ -137,11 +141,14 @@ func payAmountForGroup( groupName string){
 	// var active_user string
 	var max_amount float64
 	fmt.Scanln(&amount)
-	for active_cur_week := range groups[groupName]{
-		max_amount = groups[groupName][active_cur_week]
-		amount_left = max_amount
+	active_cur_week := getCurrentWeek(groupName)
+	max_amount = groups[groupName][active_cur_week]
+	amount_left = max_amount
+	if amount <= 0{
+		fmt.Println("Amount must be greater than zero.")
+		return
 	}
-	if amount <= max_amount && amount > 0{
+	if amount <= max_amount{
 		for i:=0; i < len(payments);i++{
 			for pay:= range payments[i]{
 				user := strings.Split(pay,"/|")[0]
@@ -168,11 +175,11 @@ func payAmountForGroup( groupName string){
 			}
 			
 		}else{
-			fmt.Println("Error with payment")
+			fmt.Println("Payment is above the amount owed.")
 		}
 		
 	}else{
-		fmt.Println("Error with payment")
+		fmt.Println("Payment is above the weekly amount.")
 	}
 }
 func getCurrentWeek( groupName string) int{
