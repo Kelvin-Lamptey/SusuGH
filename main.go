@@ -57,8 +57,20 @@ func createGroup(){
 
 	fmt.Print("Enter Group Name: ")
 	fmt.Scanln(&groupName)
+	if groupName == ""{
+		fmt.Println("Group name cannot be empty.")
+		return
+	}
+	if _, exists := groups[groupName]; exists{
+		fmt.Println("Group already exists.")
+		return
+	}
 	fmt.Print("Enter Amount to collect weekly: ")
 	fmt.Scanln(&amount)
+	if amount <= 0{
+		fmt.Println("Amount must be greater than zero.")
+		return
+	}
 	groups[groupName] = map[int]float64{ 1: amount}
 
 	cur_pot_user[groupName] = cur_user
@@ -95,6 +107,12 @@ func handleGroupSession( name string){
 	}
 }
 func addUserToGroup( groupName string){
+	for user, group := range group_user{
+		if user == cur_user && group == groupName{
+			fmt.Println("User is already in the group.")
+			return
+		}
+	}
 	fmt.Println()
 	fmt.Println("Enter the user's mobile number to add to the group: ")
 	var user string
