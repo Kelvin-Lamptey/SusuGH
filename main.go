@@ -191,6 +191,30 @@ func getCurrentWeek( groupName string) int{
 func closeCurrentWeek( groupName string){
 	var active_cur_week int
 	active_cur_week = getCurrentWeek(groupName)
+	weekly_amount := groups[groupName][active_cur_week]
+	all_paid := true
+	for user, group := range group_user{
+		if group == groupName{
+			var user_paid float64 = 0
+			for i := 0; i < len(payments); i++ {
+				for pay := range payments[i] {
+					pay_user := strings.Split(pay,"/|")[0]
+					pay_group := strings.Split(pay,"/|")[1]
+					if pay_user == user && pay_group == groupName{
+						user_paid += payments[i][pay]
+					}
+				}
+			}
+			if user_paid < weekly_amount{
+				all_paid = false
+				fmt.Println("User", user, "owes", weekly_amount-user_paid)
+			}
+		}
+	}
+	if !all_paid{
+		fmt.Println("Week cannot be closed until all users pay.")
+		return
+	}
 	for i := 0; i < len(payments); i++ {
 		for pay := range payments[i] {
 			delete(payments[i], pay)
