@@ -100,15 +100,17 @@ func openGroup(){
 func handleGroupSession( name string){
 	var response int
 	fmt.Println()
-	fmt.Println("Welcome to group",name)
-	fmt.Println("Choose your choice.\n 1.Add user to group\n 2.Pay amount\n 3.Close current week")
+	fmt.Println("Welcome to group", name)
+	fmt.Println("Choose your choice.\n 1.Add user to group\n 2.Pay amount\n 3.Close current week\n 4.Show report")
 	fmt.Scanln(&response)
 	if response == 1{
 		addUserToGroup(name)
 	}else if response == 2{
 		payAmountForGroup(name)
-	}else{
+	}else if response == 3{
 		closeCurrentWeek(name)
+	}else if response == 4{
+		reportGroup(name)
 	}
 }
 func addUserToGroup( groupName string){
@@ -249,6 +251,43 @@ func getNextPotUser( groupName string) string{
 		}
 	}
 	return cur_pot_user[groupName]
+}
+
+func reportGroup( groupName string){
+	active_cur_week := getCurrentWeek(groupName)
+	weekly_amount := groups[groupName][active_cur_week]
+
+	fmt.Println()
+	fmt.Println("Report for group", groupName)
+	fmt.Println("Current week:", active_cur_week)
+	fmt.Println("Weekly amount:", fmt.Sprintf("%.2f", weekly_amount))
+
+	for _, user := range group_members[groupName]{
+		var user_paid float64 = 0
+		for i := 0; i < len(payments); i++ {
+			for pay := range payments[i] {
+				pay_user := strings.Split(pay,"/|")[0]
+				pay_group := strings.Split(pay,"/|")[1]
+				if pay_user == user && pay_group == groupName{
+					user_paid += payments[i][pay]
+				}
+			}
+		}
+		if user_paid >= weekly_amount{
+			fmt.Println(user, "has paid in full")
+		}else{
+			fmt.Println(user, "owes", fmt.Sprintf("%.2f", weekly_amount-user_paid))
+		}
+	}
+
+	fmt.Println("Payout history:")
+	if len(payout_history[groupName]) == 0{
+		fmt.Println("No payouts yet.")
+	}else{
+		for _, payout := range payout_history[groupName]{
+			fmt.Println(payout)
+		}
+	}
 }
 
 func ReportAllUnfinishedUsersForGroup( groupName string){
