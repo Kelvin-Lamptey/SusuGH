@@ -1,11 +1,13 @@
 package main
 
 import "fmt"
+import "strings"
 
-var payments map[string]float64
-var groups map[string]map[string]float64
+var payment map[string]float64
+var groups map[string]map[int]float64
 var users map[string]string
 var group_user map[string]string
+var payments[]map[string]float64
 
 var cur_user string
 
@@ -23,13 +25,13 @@ func login(){
 }
 func setupApp(){
 	users = make(map[string]string)
-	payments = make(map[string]float64)
-	groups = make(map[string]map[string]float64)
+	payment = make(map[string]float64)
+	groups = make(map[string]map[int]float64)
 	group_user = make(map[string]string)
 }
 
 func showMenu(){
-	message := "You are welcome to the SUSU Group.\nChoose your choice \n 1. Create Group \n 2.Open a Group\n 3.Change account\n\nEnter: "
+	message := "\nYou are welcome to the SUSU Group.\nChoose your choice \n 1.Create Group \n 2.Open a Group\n 3.Change account\n\nEnter: "
 
 	var input int
 	fmt.Println(message)
@@ -55,7 +57,7 @@ func createGroup(){
 	fmt.Scanln(&groupName)
 	fmt.Print("Enter Amount to collect weekly: ")
 	fmt.Scanln(&amount)
-	groups[groupName] = map[string]float64{ cur_user: amount}
+	groups[groupName] = map[int]float64{ 1: amount}
 	group_user[cur_user] = groupName
 	fmt.Println("Group Created!!!")
 	// fmt.Println(groups)
@@ -82,7 +84,7 @@ func handleGroupSession( name string){
 	if response == 1{
 		addUserToGroup(name)
 	}else if response == 2{
-		payAmountForGroup()
+		payAmountForGroup(name)
 	}
 }
 func addUserToGroup( groupName string){
@@ -96,6 +98,50 @@ func addUserToGroup( groupName string){
 
 	// fmt.Println(group_user)
 }
-func payAmountForGroup(){
-	//add functionality for paying
+func payAmountForGroup( groupName string){
+	fmt.Println()
+	fmt.Println("Enter the amount to pay for the current week")
+	var amount float64
+	var amount_left float64
+	// var active_user string
+	var max_amount float64
+	fmt.Scanln(&amount)
+	for active_cur_week := range groups[groupName]{
+		max_amount = groups[groupName][active_cur_week]
+		amount_left = max_amount
+	}
+	if amount <= max_amount && amount > 0{
+		for i:=0; i < len(payments);i++{
+			for pay:= range payments[i]{
+				user := strings.Split(pay,"/|")[0]
+				group := strings.Split(pay,"/|")[1]
+				amt := payments[i][pay]
+				if user == cur_user && group == groupName{
+					amount_left = max_amount - amt
+				}
+			}
+		}
+		if amount <= amount_left{
+			if amount_left == max_amount{
+				
+				payments = append(payments, map[string]float64{ cur_user+"/|"+groupName:amount})
+			}else{
+				for i:=0; i < len(payments);i++{
+					for pay:= range payments[i]{
+						user := strings.Split(pay,"/|")[0]
+						group := strings.Split(pay,"/|")[1]
+						if user == cur_user && group == groupName{
+							payments[i][pay] += amount
+						}
+					}
+				}
+			}
+			
+		}else{
+			fmt.Println("Error with payment")
+		}
+		
+	}else{
+		fmt.Println("Error with payment")
+	}
 }
